@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}资产管理 - 资产详情{% endblock %}
+{% block custome_css %}
+    <link rel="stylesheet" href="{% static 'servers/css/server-add.css' %}">
+    <link rel="stylesheet" href="{% static 'servers/css/server-detail.css' %}">
+{% endblock %}
+{% block content %}
+    {% if server %}
+        <div class="content">
+            <p class="content-note1">修改资产<span class="content-note2"> (标注为*为必填项)</span></p>
+            <div style="clear:both"></div>
+            <form class="form-table" action="{% url 'servers:server_modify' %}" method="post">
+                <input type="hidden" id="server_id" name="server_id" value="{{ server.id }}"/>
+                <div class="form-list">
+                    <span>*资产类型</span>
+                    <select {% if server_form.errors.zctype %}class="input-error"{% endif %} name="zctype">
+                        {% for server_type in server_types %}
+                            <option value="{{ server_type.id }}" {% ifequal server.zctype.id server_type.id %}selected{% endifequal %}>{{ server_type.zctype }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-list">
+                    <span>资产编号</span><input {% if server_form.errors.An %}class="input-error"{% endif %} type="text" name="An" value="{{ server.An }}" placeholder="不超过15个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>硬件SN号</span><input {% if server_form.errors.Sn %}class="input-error"{% endif %} type="text" name="Sn" value="{{ server.Sn }}" placeholder="不超过100个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>服务器名称</span><input {% if server_form.errors.ServerName %}class="input-error"{% endif %} type="text" name="ServerName" value="{{ server.ServerName }}" placeholder="不超过50个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>系统全称</span><input {% if server_form.errors.SysName %}class="input-error"{% endif %} type="text" name="SysName" value="{{ server.SysName }}" placeholder="不超过50个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>用途</span><input {% if server_form.errors.Use %}class="input-error"{% endif %} type="text" name="Use" value="{{ server.Use }}" placeholder="不超过50个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>存放位置</span><input {% if server_form.errors.Location %}class="input-error"{% endif %} type="text" name="Location" value="{{ server.Location }}" placeholder="不超过50个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>机柜</span><input {% if server_form.errors.Cabinet %}class="input-error"{% endif %} type="text" name="Cabinet" value="{{ server.Cabinet }}" placeholder="不超过100个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>品牌型号</span><input {% if server_form.errors.BrandModels %}class="input-error"{% endif %} type="text" name="BrandModels" value="{{ server.BrandModels }}" placeholder="不超过100个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>购入日期</span><input {% if server_form.errors.PurchaseDate %}class="input-error"{% endif %} type="text" name="PurchaseDate" value="{{ server.PurchaseDate|date:"Y-m-d" }}" placeholder="格式示例:年-月-日,如2020-8-8"/>
+                </div>
+                <div class="form-list">
+                    <span>负责人</span><input {% if server_form.errors.Head %}class="input-error"{% endif %} type="text" name="Head" value="{{ server.Head }}" placeholder="不超过100个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>ip地址</span><input {% if server_form.errors.Ipaddress %}class="input-error"{% endif %} type="text" name="Ipaddress" value="{{ server.Ipaddress }}" placeholder="不超过100个字符"/>
+                </div>
+                <div class="form-list">
+                    <span>维保日期</span><input {% if server_form.errors.WDate %}class="input-error"{% endif %} type="text" name="WDate" value="{{ server.WDate|date:"Y-m-d " }}" placeholder="格式示例:年-月-日,如2020-8-8"/>
+                </div>
+                <div class="form-list">
+                    <span>资产状态</span>
+                    <select name="Undernet" {% if server_form.errors.Undernet %}class="input-error"{% endif %}>
+                        <option value="在用" {% ifequal server.Undernet '在用' %}selected{% endifequal %}>在用</option>
+                        <option value="停用" {% ifequal server.Undernet '停用' %}selected{% endifequal %}>停用</option>
+                        <option value="报废" {% ifequal server.Undernet '报废' %}selected{% endifequal %}>报废</option>
+                    </select>
+                </div>
+                <div class="form-list">
+                    <span>备注</span><input {% if server_form.errors.zcpz %}class="input-error"{% endif %} type="text" name="Comment" value="{{ server.Comment }}" placeholder="不超过100个字符"/>
+                </div>
+{#                <div class="form-list">#}
+{#                    <span>*管理人员</span>#}
+{#                    <select name="owner">#}
+{#                        <option value="0" {% if not server.owner.id %}selected{% endif %}>空</option>#}
+{#                        {% for user in users %}#}
+{#                            <option value="{{ user.id }}" {% ifequal server.owner.id user.id %}selected{% endifequal %}>{{ user.username }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
+{#                <div class="form-list">#}
+{#                    <span>*所在网络</span>#}
+{#                    <select name="undernet" {% if server_form.errors.undernet %}class="input-error"{% endif %}>#}
+{#                        <option value="办公" {% ifequal server.undernet '办公' %}selected{% endifequal %}>办公</option>#}
+{#                        <option value="生产" {% ifequal server.undernet '生产' %}selected{% endifequal %}>生产</option>#}
+{#                        <option value="闲置" {% ifequal server.undernet '闲置' %}selected{% endifequal %}>闲置</option>#}
+{#                    </select>#}
+{#                </div>#}
+{#                <div class="form-list">#}
+{#                    <span>保修期</span><input type="text" name="guartime" value="{{ server.guartime }}" placeholder="格式示例:年-月-日,如2018-8-8"/>#}
+{#                </div>#}
+{#                <div class="form-list">#}
+{#                    <span class="comment">备注</span><textarea class="textarea {% if server_form.errors.comment %}input-error{% endif %}" name="comment" placeholder="不超过300个字符">{{ server.comment }}</textarea>#}
+{#                </div>#}
+                {% if msg %}
+                    <div class="error">{{ msg }}</div>
+                {% endif %}
+                <div style="clear:both"></div>
+                <div class="form-list">
+                    <input class="form-button" type="submit" value="保存"/>
+                </div>
+                <div class="form-list">
+                     <button class="form-button" type="button" onclick="btn_cancel()">取消</button>
+                </div>
+                <div class="form-list">
+                     <button class="form-button form-button-del" type="button" onclick="btn_delete()">删除</button>
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+    {% endif %}
+    <div class="content">
+        <a name="hist"></a>
+        <p>资产历史变动记录</p>
+        <table class="table-list">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>资产类型</th>
+                    <th>资产编号</th>
+                    <th>硬件SN号</th>
+                    <th>服务器名称</th>
+                    <th>系统全称</th>
+                    <th>用途</th>
+                    <th>存放位置</th>
+                    <th>机柜</th>
+                    <th>品牌型号</th>
+                    <th>购入日期</th>
+                    <th>负责人</th>
+                    <th>ip地址</th>
+                    <th>维保日期</th>
+                    <th>资产状态</th>
+                    <th>备注</th>
+                    <th>修改时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for server in p_server_hiss.object_list %}
+                    <tr>
+                        <td>{{ forloop.counter|add:start }}</td>
+                        <td>{{ server.zctype }}</td>
+                        <td>{{ server.An }}</td>
+                        <td>{{ server.Sn }}</td>
+                        <td>{{ server.ServerName }}</td>
+                        <td>{{ server.SysName }}</td>
+                        <td>{{ server.Use }}</td>
+                        <td>{{ server.Location }}</td>
+                        <td>{{ server.Cabinet }}</td>
+                        <td>{{ server.BrandModels }}</td>
+                        <td>{{ server.PurchaseDate|date:"Y-m-d"}}</td>
+                        <td>{{ server.Head }}</td>
+                        <td>{{ server.Ipaddress }}</td>
+                        <td>{{ server.WDate|date:"Y-m-d "}}</td>
+                        <td>{{ server.Undernet }}</td>
+                        <td><div class="more-text">{{ server.Comment }}</div></td>
+                        <td>{{ server.Modify_time|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="page">
+            <ul class="pagination">
+                {% if p_server_hiss.has_previous %}
+                    <li><a href="?{{ p_server_hiss.previous_page_number.querystring }}#hist">&laquo;</a></li>
+                {% endif %}
+                {% for page in p_server_hiss.pages %}
+                    {% if page %}
+                        {% ifequal page p_server_hiss.number %}
+                            <li class="active"><a href="?{{ page.querystring }}#hist">{{ page }}</a></li>
+                        {% else %}
+                            <li><a href="?{{ page.querystring }}#hist">{{ page }}</a></li>
+                        {% endifequal %}
+                    {% else %}
+                        <li>...</li>
+                    {% endif %}
+                {% endfor %}
+                {% if p_server_hiss.has_next %}
+                    <li><a href="?{{ p_server_hiss.next_page_number.querystring }}#hist">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block custome_js %}
+    <script>
+        function btn_cancel() {
+            location.href = "{% url 'servers:server_list' %}";
+        }
+
+        function btn_delete() {
+            var server_id = document.getElementById("server_id").value;
+            var url = "{% url 'servers:server_delete' 0 %}";
+            var conf = confirm("确定删掉该条数据？");
+            if (conf){
+                location.href = url.replace('0', server_id);
+            }
+        }
+        var sidebar = document.getElementById("sidebar");
+        var content_height = document.body.scrollHeight>window.innerHeight?document.body.scrollHeight-48:window.innerHeight-48;
+        sidebar.style.height = content_height+'px';
+    </script>
+{% endblock %}
