@@ -1,12 +1,13 @@
 from django.urls import path
 
-from .views import ServerListView, ServerAddView, ServerDetailView, ServerModifyView, ServerDeleteView, ServerExportView
+from .views import ServerListView, ServerAddView,ServeruploadView, ServerDetailView, ServerModifyView, ServerDeleteView, ServerExportView
 from .views import TypeListView, TypeAddView, TypeDetailView, TypeModifyView
 
 urlpatterns = [
     # 资产url
     path('server/list/', ServerListView.as_view(), name='server_list'),
     path('server/add/', ServerAddView.as_view(), name='server_add'),
+    path('server/upload/', ServeruploadView.as_view(), name='server_upload'),
     path('server/detail/<int:server_id>/', ServerDetailView.as_view(), name='server_detail'),
     path('server/modify/', ServerModifyView.as_view(), name='server_modify'),
     path('server/delete/<int:server_id>/', ServerDeleteView.as_view(), name='server_delete'),

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.db.models import Q, Count
 from pure_pagination import Paginator, PageNotAnInteger
 import csv
-
+from django.contrib import messages
 from .models import Server, ServerType, ServerHis
 from .forms import ServerForm, ServerTypeForm
 from users.models import UserOperateLog, UserProfile
@@ -84,6 +84,7 @@ class ServerAddView(LoginRequiredMixin, View):
         #Modify_time = request.POST.get('Modify_time').strip().upper()
 
         server_form = ServerForm(request.POST)
+
         # 判断表单是否正确
         if server_form.is_valid():
             new_server = Server(zctype=zctype, An=An, Sn=Sn,ServerName=ServerName,SysName=SysName,Use=Use,
@@ -109,6 +110,94 @@ class ServerAddView(LoginRequiredMixin, View):
             server_types = ServerType.objects.all()
             return render(request, 'servers/server_add.html', {'msg': '输入错误！', 'users': users,
                                                                'server_form': server_form, 'server_types': server_types})
+#cvs数据导入
+class ServeruploadView(LoginRequiredMixin, View):
+    def get(self, request):
+        data = {}
+        if "GET" == request.method:
+            return render(request, "servers/server_upload.html", data)
+
+
+
+    def post(self, request):
+        # if not GET, then proceed
+        try:
+            csv_file = request.FILES["csv_file"]
+            if not csv_file.name.endswith('.csv'):
+                return render(request, 'servers/server_upload.html', {'msg': 'File is not CSV type'})
+            if csv_file.multiple_chunks():
+                messages.error(request, "Uploaded file is too big (%.2f MB)." % (csv_file.size / (1000 * 1000),))
+                return HttpResponseRedirect(reverse("servers/server_upload.html"))
+            file_data = csv_file.read().decode("utf-8")
+            lines = file_data.split("\n")
+            # loop over the lines and save them in db. If error , store as string and then display
+            for line in lines:
+                fields = line.split(",")
+                data_dict = {}
+                data_dict["zctype"] = fields[0]
+                data_dict["An"] = fields[1]
+                data_dict["Sn"] = fields[2]
+                data_dict["ServerName"] = fields[3]
+                data_dict["SysName"] = fields[4]
+                data_dict["Use"] = fields[5]
+                data_dict["Location"] = fields[6]
+                data_dict["Cabinet"] = fields[7]
+                data_dict["BrandModels"] = fields[8]
+                data_dict["PurchaseDate"] = fields[9]
+                data_dict["Head"] = fields[11]
+                data_dict["Ipaddress"] = fields[12]
+                data_dict["WDate"] = fields[13]
+                data_dict["Undernet"] = fields[14]
+                data_dict["Comment"] = fields[15]
+                try:
+                    server_form = EventsForm(data_dict)
+                    if server_form.is_valid():
+                        server_form.save()
+                    else:
+                        return render(request, 'servers/server_upload.html', {'msg': '导入失败！'})
+                except Exception as e:
+                    return render(request, 'servers/server_upload.html', {'msg': '导入失败！'})
+                    pass
+
+
+
+
+
+        except Exception as e:
+            return render(request, 'servers/server_upload.html', {'msg': '输入错误！'})
+
+
+
+
+        ################################
+        # 判断表单是否正确
+        if server_form.is_valid():
+            new_server = Server(zctype=zctype, An=An, Sn=Sn, ServerName=ServerName, SysName=SysName, Use=Use,
+                                Location=Location, Cabinet=Cabinet, BrandModels=BrandModels, PurchaseDate=PurchaseDate,
+                                Head=Head, Ipaddress=Ipaddress, WDate=WDate, Undernet=Undernet, Comment=Comment)
+            new_server.save()
+
+            # user_name = owner.username if owner else ''
+
+            # 该记录添加到历史表中
+            server_his = ServerHis(serverid=new_server.id, zctype=zctype.zctype, An=An, Sn=Sn, ServerName=ServerName,
+                                   SysName=SysName,
+                                   Use=Use, Location=Location, Cabinet=Cabinet, BrandModels=BrandModels,
+                                   PurchaseDate=PurchaseDate,
+                                   Head=Head, Ipaddress=Ipaddress, WDate=WDate, Undernet=Undernet, Comment=Comment)
+            server_his.save()
+
+            # 将操作记录添加到日志中
+            new_log = UserOperateLog(username=request.user.username, scope=zctype.zctype, type='增加',
+                                     content=server_his.serverid)
+            new_log.save()
+            return HttpResponseRedirect((reverse('servers:server_list')))
+        else:
+            users = UserProfile.objects.filter(is_superuser=0)
+            server_types = ServerType.objects.all()
+            return render(request, 'servers/server_upload.html', {'msg': '输入错误！', 'users': users,
+                                                               'server_form': server_form,
+                                                               'server_types': server_types})
 
 
 # 资产详情

@@ -16,6 +16,7 @@
         {% if request.user.isadmin == '1' or request.user.is_superuser == 1 %}
             <button class="button-insert" id="btn_add">添加资产</button>
             <button class="button-insert" id="btn_export_list">导出列表</button>
+            <button class="button-insert" id="btn_import_list">导入列表</button>
         {% endif %}
         <br/><br/>
         <table class="table-list">
@@ -103,6 +104,10 @@
             var search = document.getElementById("search").value;
             var url = "{% url 'servers:server_export' %}";
             location.href = url + '?search=' + search;
+        };
+        var btn_server_add = document.getElementById("btn_import_list");
+        btn_server_add.onclick = function () {
+            location.href = "{% url 'servers:server_upload' %}";
         }
     </script>
 {% endblock %}
